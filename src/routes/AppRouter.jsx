@@ -9,19 +9,33 @@ import Chat from "../pages/Chat";
 import Friends from "../pages/Friends";
 import Profile from "../pages/Profile";
 import Pricing from "../pages/Pricing";
+import VerifyEmail from "../pages/VerifyEmail";
 import AppLayout from "../components/layout/AppLayout";
 import LoadingScreen from "../components/ui/LoadingScreen";
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return <LoadingScreen />;
-  return user ? children : <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login" replace />;
+  if (!user.emailVerified) return <Navigate to="/verify-email" replace />;
+  return children;
 }
 
 function PublicRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return <LoadingScreen />;
-  return user ? <Navigate to="/discover" replace /> : children;
+  if (user) {
+    return user.emailVerified ? <Navigate to="/discover" replace /> : <Navigate to="/verify-email" replace />;
+  }
+  return children;
+}
+
+function VerifyRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingScreen />;
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.emailVerified) return <Navigate to="/discover" replace />;
+  return children;
 }
 
 export default function AppRouter() {
@@ -31,6 +45,9 @@ export default function AppRouter() {
       <Route path="/" element={<PublicRoute><Landing /></PublicRoute>} />
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
       <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+
+      {/* Verification */}
+      <Route path="/verify-email" element={<VerifyRoute><VerifyEmail /></VerifyRoute>} />
 
       {/* Protected — inside app shell */}
       <Route path="/" element={<PrivateRoute><AppLayout /></PrivateRoute>}>

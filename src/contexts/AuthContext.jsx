@@ -7,6 +7,7 @@ import {
   GoogleAuthProvider,
   signOut,
   updateProfile,
+  sendEmailVerification,
 } from "firebase/auth";
 import { auth } from "../lib/firebase";
 
@@ -27,7 +28,14 @@ export function AuthProvider({ children }) {
   const signUp = async (email, password, displayName) => {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     await updateProfile(cred.user, { displayName });
+    await sendEmailVerification(cred.user);
     return cred.user;
+  };
+
+  const sendVerification = async () => {
+    if (auth.currentUser) {
+      await sendEmailVerification(auth.currentUser);
+    }
   };
 
   const signIn = async (email, password) => {
@@ -59,6 +67,7 @@ export function AuthProvider({ children }) {
     signInWithGoogle,
     logOut,
     getToken,
+    sendVerification,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

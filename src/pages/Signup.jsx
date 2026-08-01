@@ -23,8 +23,8 @@ export default function Signup() {
     setLoading(true);
     try {
       await signUp(email, password, name);
-      toast.success("Account created! Welcome to LoveLink 💕");
-      navigate("/discover");
+      toast.success("Account created! Please check your email to verify.");
+      navigate("/verify-email");
     } catch (err) {
       const msg = err.code === "auth/email-already-in-use"
         ? "Email already in use"
